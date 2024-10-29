@@ -6,7 +6,7 @@ import (
 )
 
 type CreateAccountInputDTO struct {
-	CliendID string
+	ClientID string
 }
 
 type CreateAccountOutputDTO struct {
@@ -26,7 +26,7 @@ func NewCreateAccountUseCase(accountGateway gateway.AccountGateway, clientGatewa
 }
 
 func (uc *CreateAccountUseCase) Execute(input CreateAccountInputDTO) (*CreateAccountOutputDTO, error) {
-	client, err := uc.ClientGateway.Get(input.CliendID)
+	client, err := uc.ClientGateway.Get(input.ClientID)
 	if err != nil {
 		return nil, err
 	}
