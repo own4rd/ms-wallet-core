@@ -51,7 +51,7 @@ func TestCreateAccountUseCase_Execute(t *testing.T) {
 	output, err := uc.Execute(inputDTO)
 
 	assert.Nil(t, err)
-	assert.NotNil(t, output)
+	assert.NotNil(t, output.ID)
 	clientMock.AssertExpectations(t)
 	accountMock.AssertExpectations(t)
 	clientMock.AssertNumberOfCalls(t, "Get", 1)
