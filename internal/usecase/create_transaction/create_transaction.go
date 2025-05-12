@@ -1,4 +1,4 @@
-package createtransaction
+package create_transaction
 
 import (
 	"github.com/own4rd/ms-wallet-core/internal/entity"

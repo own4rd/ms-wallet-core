@@ -1,4 +1,4 @@
-package createaccount
+package create_account
 
 import (
 	"github.com/own4rd/ms-wallet-core/internal/entity"
