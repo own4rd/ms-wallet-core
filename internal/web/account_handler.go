@@ -21,12 +21,14 @@ func (h *WebAccountHandler) CreateAccount(w http.ResponseWriter, r *http.Request
 	var dto create_account.CreateAccountInputDTO
 	err := json.NewDecoder(r.Body).Decode(&dto)
 	if err != nil {
+		println("Error executing CreateAccountUseCase:", err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	output, err := h.CreateAccountUseCase.Execute(dto)
 	if err != nil {
+		println("Error executing CreateAccountUseCase:", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -35,6 +37,8 @@ func (h *WebAccountHandler) CreateAccount(w http.ResponseWriter, r *http.Request
 	err = json.NewEncoder(w).Encode(output)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		// Print the error for testing purposes
+		println("Error executing CreateAccountUseCase:", err.Error())
 		return
 	}
 	w.WriteHeader(http.StatusCreated)

@@ -10,11 +10,13 @@ import (
 	"github.com/own4rd/ms-wallet-core/internal/usecase/create_account"
 	"github.com/own4rd/ms-wallet-core/internal/usecase/create_client"
 	"github.com/own4rd/ms-wallet-core/internal/usecase/create_transaction"
+	"github.com/own4rd/ms-wallet-core/internal/web"
+	"github.com/own4rd/ms-wallet-core/internal/web/webserver"
 	"github.com/own4rd/ms-wallet-core/pkg/events"
 )
 
 func main() {
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", "root", "root", "localhost", 3306, "testdb"))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true", "root", "root", "localhost", 3306, "testdb"))
 	if err != nil {
 		panic(err)
 	}
@@ -30,4 +32,16 @@ func main() {
 	createClientUseCase := create_client.NewCreateClientUseCase(clientDb)
 	createAccountUseCase := create_account.NewCreateAccountUseCase(accountDb, clientDb)
 	createTransactionUseCase := create_transaction.NewCreateTransactionUseCase(transactionDb, accountDb, *eventDispatcher, transactionCreateEvent)
+
+	webserver := webserver.NewWebServer(":3000")
+
+	clientHandler := web.NewWebClientHandler(*createClientUseCase)
+	accountHandler := web.NewWebAccountHandler(*createAccountUseCase)
+	transactionHandler := web.NewWebTransactionHandler(*createTransactionUseCase)
+
+	webserver.AddHandlers("/clients", clientHandler.CreateClient)
+	webserver.AddHandlers("/accounts", accountHandler.CreateAccount)
+	webserver.AddHandlers("/transactions", transactionHandler.CreateTransaction)
+
+	webserver.Start()
 }

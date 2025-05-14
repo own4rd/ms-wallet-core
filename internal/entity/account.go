@@ -1,6 +1,10 @@
 package entity
 
-import "time"
+import (
+	"time"
+
+	_ "github.com/go-sql-driver/mysql"
+)
 
 type Account struct {
 	ID        string
