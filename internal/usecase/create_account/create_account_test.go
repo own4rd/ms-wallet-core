@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/own4rd/ms-wallet-core/internal/entity"
+	"github.com/own4rd/ms-wallet-core/internal/usecase/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -36,22 +37,27 @@ func (m *AccountGatewayMock) FindByID(id string) (*entity.Account, error) {
 	return args.Get(0).(*entity.Account), args.Error(1)
 }
 
+func (m *AccountGatewayMock) UpdateBalance(account entity.Account) error {
+	args := m.Called(account)
+	return args.Error(0)
+}
+
 func TestCreateAccountUseCase_Execute(t *testing.T) {
-	client, _ := entity.NewClient("Jhon Doe", "j@j")
-	clientMock := &ClientGatewayMock{}
+	client, _ := entity.NewClient("John Doe", "j@j")
+	clientMock := &mocks.ClientGatewayMock{}
 	clientMock.On("Get", client.ID).Return(client, nil)
 
-	accountMock := &AccountGatewayMock{}
+	accountMock := &mocks.AccountGatewayMock{}
 	accountMock.On("Save", mock.Anything).Return(nil)
 
 	uc := NewCreateAccountUseCase(accountMock, clientMock)
-	inputDTO := CreateAccountInputDTO{
+	inputDto := CreateAccountInputDTO{
 		ClientID: client.ID,
 	}
-	output, err := uc.Execute(inputDTO)
-
+	output, err := uc.Execute(inputDto)
 	assert.Nil(t, err)
 	assert.NotNil(t, output.ID)
+	// asssert valid uuid
 	clientMock.AssertExpectations(t)
 	accountMock.AssertExpectations(t)
 	clientMock.AssertNumberOfCalls(t, "Get", 1)

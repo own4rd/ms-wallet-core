@@ -16,25 +16,27 @@ func NewWebClientHandler(createClientUseCase create_client.CreateClientUseCase) 
 		CreateClientUseCase: createClientUseCase,
 	}
 }
-
 func (h *WebClientHandler) CreateClient(w http.ResponseWriter, r *http.Request) {
 	var dto create_client.CreateClientInputDTO
 	err := json.NewDecoder(r.Body).Decode(&dto)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		println("Error decoding request body:", err.Error())
 		return
 	}
 
 	output, err := h.CreateClientUseCase.Execute(dto)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		println("Error executing use case:", err.Error())
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(output)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		println("Error encoding response:", err.Error())
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
