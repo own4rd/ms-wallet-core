@@ -12,35 +12,12 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type TransactionGatewayMock struct {
-	mock.Mock
-}
-
-func (m *TransactionGatewayMock) Create(transaction entity.Transaction) error {
-	args := m.Called(transaction)
-	return args.Error(0)
-}
-
-type AccountGatewayMock struct {
-	mock.Mock
-}
-
-func (m *AccountGatewayMock) Save(account *entity.Account) error {
-	args := m.Called(account)
-	return args.Error(0)
-}
-
-func (m *AccountGatewayMock) FindByID(id string) (*entity.Account, error) {
-	args := m.Called(id)
-	return args.Get(0).(*entity.Account), args.Error(1)
-}
-
 func TestCreateTransactionUseCase_Execute(t *testing.T) {
-	client1, err := entity.NewClient("John Doe", "j@j.com")
+	client1, _ := entity.NewClient("client1", "j@j.com")
 	account1 := entity.NewAccount(client1)
 	account1.Credit(1000)
 
-	client2, err := entity.NewClient("John Doe 2", "j@j2.com")
+	client2, _ := entity.NewClient("client2", "j@j2.com")
 	account2 := entity.NewAccount(client2)
 	account2.Credit(1000)
 
@@ -54,10 +31,11 @@ func TestCreateTransactionUseCase_Execute(t *testing.T) {
 	}
 
 	dispatcher := events.NewEventDispatcher()
-	event := event.NewTransactionCreated()
+	eventTransaction := event.NewTransactionCreated()
+	eventBalance := event.NewBalanceUpdated()
 	ctx := context.Background()
 
-	uc := NewCreateTransactionUseCase(mockUow, *dispatcher, event)
+	uc := NewCreateTransactionUseCase(mockUow, dispatcher, eventTransaction, eventBalance)
 	output, err := uc.Execute(ctx, inputDto)
 	assert.Nil(t, err)
 	assert.NotNil(t, output)
